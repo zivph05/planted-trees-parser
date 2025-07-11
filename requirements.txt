@@ -1,0 +1,10 @@
+# Core
+PyYAML>=6.0           # config loading
+pydantic>=2.0         # config validation
+
+# Message queue clients
+kafka-python>=2.0.2   # Kafka consumer
+pika>=1.3.1           # RabbitMQ client
+python-dateutil~=2.9.0.post0
+kafka~=1.3.5
+pytest~=8.4.1

@@ -1,0 +1,45 @@
+# Parser configuration for Planted Trees Parser
+# This configuration file defines how to parse incoming data from Kafka,
+# transform it into structured JSON, and send it to RabbitMQ.
+# It includes input source, parsing rules, field definitions, and output settings.
+input:
+  type: rabbitmq
+  # brokers:
+  #  - "kafka:9092"
+  # topic: planted-trees.raw
+  # group_id: planted-trees-parser
+  host: localhost   # your RMQ host
+  port: 5672                         # default AMQP port
+  queue: planted-trees.raw           # the queue you’re consuming from
+  prefetch_count: 10                 # (optional) how many messages to prefetch
+
+parser:
+  parse_to: json                  # serialize parsed records to JSON
+  delimiter: "|"                  # split incoming lines on ‘|’
+
+fields:
+  - name: message
+    type: string
+
+  - name: arad_age
+    type: int
+
+  - name: event_time
+    type: datetime
+    format: "%Y-%m-%dT%H:%M:%S.%fNZ"   # ISO-8601 with milliseconds, e.g. "2025-07-06T18:00:00.123Z"
+
+  - name: reporter_name
+    type: string
+
+  - name: address
+    type: string
+
+output:
+  type: rabbitmq
+  host: localhost
+  port: 5672
+  exchange: planted-trees.events
+  routing_key: parsed
+
+logging:
+  level: DEBUG                     # DEBUG, INFO, WARN, ERROR

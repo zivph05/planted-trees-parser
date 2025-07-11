@@ -6,6 +6,7 @@ from pika.exceptions import AMQPConnectionError, AMQPError
 
 from src.config import get_config
 from src.parsers import get_parser
+from src.metrics import start_metrics_server
 
 
 def setup_logging(level: str):
@@ -32,6 +33,9 @@ def main():
     # Setup logging from config
     setup_logging(cfg.logging.level)
     logging.info("Starting PlantedTrees Parser")
+
+    # Start Prometheus metrics server
+    start_metrics_server()
 
     # Instantiate parser based on type
     parser = get_parser(cfg)

@@ -19,6 +19,7 @@ from src.metrics import (
     MESSAGES_ERROR,
     PARSE_DURATION,
 )
+from src.utils.densify import densify
 
 logger = logging.getLogger(__name__)
 

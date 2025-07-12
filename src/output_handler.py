@@ -107,7 +107,22 @@ class RabbitMQOutputHandler(BaseOutputHandler):
         try:
             self.conn: BlockingConnection = BlockingConnection(params)
             self.ch: BlockingChannel = self.conn.channel()
-            logger.info("Successfully connected to RabbitMQ")
+
+            self.ch.exchange_declare(
+                exchange=self.cfg.exchange,
+                exchange_type="direct",
+                durable=True,
+            )
+
+            self.ch.queue_declare(queue=self.cfg.routing_key, durable=True)
+
+            self.ch.queue_bind(
+                exchange=self.cfg.exchange,
+                queue=self.cfg.routing_key,
+                routing_key=self.cfg.routing_key,
+            )
+
+            logger.info("Successfully connected to RabbitMQ and ensured exchange and queue")
         except AMQPConnectionError as e:
             logger.error("RabbitMQ connection error: %s", e)
             raise
@@ -129,6 +144,7 @@ class RabbitMQOutputHandler(BaseOutputHandler):
         logger.debug("Publishing message to RabbitMQ")
         try:
             ch = self.connect()
+
             ch.basic_publish(
                 exchange=self.cfg.exchange,
                 routing_key=self.cfg.routing_key,

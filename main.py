@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Main entry point for the PlantedTrees parser.
+
+Handles configuration loading, logging setup, metrics server startup, and parser execution.
+"""
+
 import logging
 import sys
 

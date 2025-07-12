@@ -1,4 +1,13 @@
-# src/exceptions.py
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Exception classes for parser errors.
+
+Defines custom exceptions for decoding, empty lines, field count mismatches, and type casting errors.
+"""
+
+
 class ParserError(Exception):
     """Base class for all parse_* errors – makes catching easy."""
     pass

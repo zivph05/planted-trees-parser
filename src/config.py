@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-07-12
+Description:
+    This module defines the configuration for the parser application.
+    It includes settings for input sources (Kafka and RabbitMQ), parsing options,
+    output destinations (RabbitMQ), and logging.
+    From the YAML file. Using CONFIG_PATH environment variable to specify the path.
+"""
 import os
 from typing import List, Literal, Optional, Union
 
@@ -25,6 +34,8 @@ class KafkaInput(BaseModel):
     commit_interval_ms: int = Field(
         5000, ge=100, description="How often (ms) to commit offsets"
     )
+    user: Optional[str] = Field(None, description="Username for Kafka authentication")
+    password: Optional[str] = Field(None, description="Password for Kafka authentication")
 
     def __init__(self, **data):
         logger.debug(f"Initializing KafkaInput with data: {data}")
@@ -40,6 +51,8 @@ class RabbitMQInput(BaseModel):
     host: str = Field(..., description="RabbitMQ host to connect to")
     port: int = Field(..., description="RabbitMQ port to connect to")
     queue: str = Field(..., description="Queue name to consume from")
+    user: Optional[str] = Field(None, description="Username for RabbitMQ authentication")
+    password: Optional[str] = Field(None, description="Password for RabbitMQ authentication")
     prefetch_count: Optional[int] = Field(
         None, ge=1, description="Prefetch count for RabbitMQ consumer"
     )
@@ -107,6 +120,8 @@ class RabbitMQOutput(BaseModel):
     port: int = Field(..., description="RabbitMQ port to publish to")
     exchange: str = Field(..., description="Exchange to publish to")
     routing_key: str = Field(..., description="Routing key for normal records")
+    user: Optional[str] = Field(None, description="Username for RabbitMQ authentication")
+    password: Optional[str] = Field(None, description="Password for RabbitMQ authentication")
 
     def __init__(self, **data):
         logger.debug(f"Initializing RabbitMQOutput with data: {data}")

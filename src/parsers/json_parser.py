@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+JSON parser for transforming raw messages into structured JSON and publishing them.
+
+Handles message parsing, error handling, and output publishing.
+"""
+
 import json
 import logging
 from src.config import ParserConfig
@@ -45,12 +54,9 @@ class JSONParser:
                 logger.debug("Parsed message: %s", json_data)
                 self.output_handler.publish(json_data)
                 MESSAGES_OUT.inc()
-            except ValueError as e:
+            except Exception as e:
                 logger.error(
-                    f"Failed to parse message: {e}, sending to error output"
-                )
-                json_data = json.dumps(
-                    {"raw_message": raw, "error": str(e)}, indent=4
+                    f"Failed to parse message: {e}"
                 )
                 MESSAGES_ERROR.inc()
 

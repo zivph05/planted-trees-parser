@@ -1,6 +1,15 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Input handler classes for consuming messages from Kafka and RabbitMQ.
+
+Defines abstract and concrete handlers for connecting to and consuming messages from supported input systems.
+"""
+
 import logging
 from abc import ABC, abstractmethod
-from typing import Union, Type, Optional, Callable
+from typing import Union, Type, Optional, Callable, Dict, Any
 
 import pika
 from kafka import KafkaConsumer, errors as kafka_errors
@@ -57,33 +66,46 @@ class KafkaInputHandler(BaseInputHandler):
     Manages connections and message consumption from Kafka topics.
     """
 
+    def _common_kwargs(self) -> Dict[str, Any]:
+        """
+        Prepare common keyword arguments for KafkaConsumer based on the configuration.
+        Returns:
+            Dict[str, Any]: Common keyword arguments for KafkaConsumer.
+        """
+        kw = dict(
+            bootstrap_servers=self.cfg.brokers,
+            group_id=self.cfg.group_id,
+            auto_offset_reset=self.cfg.auto_offset_reset,
+            enable_auto_commit=True,
+            auto_commit_interval_ms=self.cfg.commit_interval_ms,
+        )
+
+        if self.cfg.user and self.cfg.password:
+            kw.update(
+                security_protocol="SASL_PLAINTEXT",
+                sasl_mechanism="PLAIN",
+                sasl_plain_username=self.cfg.user,
+                sasl_plain_password=self.cfg.password,
+            )
+        return kw
+
     def connect(self):
         """
-        Create a KafkaConsumer based on the provided configuration.
-
+        Open a Kafka consumer connection to the specified topic.
         Returns:
             KafkaConsumer: The Kafka consumer instance.
-
         Raises:
-            kafka_errors.KafkaError: If the connection to Kafka fails.
+            KafkaError: If the connection to Kafka fails.
         """
         if self.consumer is not None:
             logger.debug("Kafka consumer already connected")
             return self.consumer
+
         logger.debug("Connecting to Kafka brokers: %s", self.cfg.brokers)
         try:
             self.consumer = KafkaConsumer(
                 self.cfg.topic,
-                bootstrap_servers=self.cfg.brokers,
-                group_id=self.cfg.group_id,
-                auto_offset_reset=self.cfg.auto_offset_reset,
-                enable_auto_commit=True,
-                auto_commit_interval_ms=self.cfg.commit_interval_ms,
-                max_poll_interval_ms=86_400_000,
-                session_timeout_ms=3_600_000,
-                heartbeat_interval_ms=200_000,
-                request_timeout_ms=3_620_000,
-                retry_backoff_ms=10_000,
+                **self._common_kwargs(),
             )
             logger.info("Successfully connected to Kafka")
         except kafka_errors.KafkaError as e:
@@ -94,22 +116,15 @@ class KafkaInputHandler(BaseInputHandler):
     def consume(self, on_message: Callable[[bytes], None]):
         """
         Consume messages from the Kafka topic and process them using the provided callback.
-
         Args:
             on_message (Callable[[bytes], None]): Callback function to process each message.
-
-        Raises:
-            Exception: If an error occurs while processing a message.
         """
         consumer = self.connect()
         logger.debug("Starting Kafka message consumption")
         try:
             for msg in consumer:
-                try:
-                    logger.debug("Processing Kafka message: %s", msg.value)
-                    on_message(msg.value)
-                except Exception as e:
-                    logger.exception("Error processing Kafka message: %s", e)
+                logger.debug("Processing Kafka message: %s", msg.value)
+                on_message(msg.value)
         except KeyboardInterrupt:
             logger.info("Kafka consumption interrupted by user")
         finally:
@@ -133,6 +148,10 @@ class RabbitMQInputHandler(BaseInputHandler):
         Raises:
             AMQPConnectionError: If the connection to RabbitMQ fails.
         """
+        credentials = None
+        if self.cfg.user and self.cfg.password:
+            credentials = pika.PlainCredentials(self.cfg.user, self.cfg.password)
+
         if self.ch is not None:
             logger.debug("RabbitMQ channel already connected")
             return self.ch
@@ -140,6 +159,7 @@ class RabbitMQInputHandler(BaseInputHandler):
         params = pika.ConnectionParameters(
             host=self.cfg.host,
             port=self.cfg.port,
+            credentials=credentials,
             heartbeat=0,
             blocked_connection_timeout=None,
         )
@@ -170,10 +190,7 @@ class RabbitMQInputHandler(BaseInputHandler):
         def _callback(ch, method, properties, body):
             logger.debug("Received RabbitMQ message: %s", body)
             ch.basic_ack(method.delivery_tag)
-            try:
-                on_message(body)
-            except Exception as e:
-                logger.exception("Error processing RabbitMQ message: %s", e)
+            on_message(body)
 
         ch.basic_consume(queue=self.cfg.queue, on_message_callback=_callback)
         try:

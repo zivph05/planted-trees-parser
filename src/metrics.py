@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Prometheus metrics for the parser.
+
+Defines counters and summaries for tracking message flow and parsing durations.
+"""
+
 from prometheus_client import Counter, Summary, start_http_server
 
 MESSAGES_IN = Counter(

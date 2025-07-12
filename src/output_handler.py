@@ -1,8 +1,18 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Output handler classes for publishing messages to RabbitMQ and Kafka.
+
+Defines abstract and concrete handlers for connecting, publishing, and closing output systems.
+"""
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Type, Dict, Union, Optional
 from pika import BlockingConnection, ConnectionParameters
 from pika.adapters.blocking_connection import BlockingChannel
+from pika.credentials import PlainCredentials
 from pika.exceptions import AMQPConnectionError, AMQPError
 from kafka import KafkaProducer, errors as kafka_errors
 
@@ -78,12 +88,19 @@ class RabbitMQOutputHandler(BaseOutputHandler):
             AMQPConnectionError: If the connection to RabbitMQ fails.
         """
         logger.debug("Attempting to connect to RabbitMQ")
+        credentials = None
+        if self.cfg.user and self.cfg.password:
+            credentials = PlainCredentials(
+                username=self.cfg.user,
+                password=self.cfg.password
+            )
         if self.ch is not None:
             logger.debug("RabbitMQ channel already connected")
             return self.ch
         params = ConnectionParameters(
             host=self.cfg.host,
             port=self.cfg.port,
+            credentials=credentials,
             heartbeat=0,
             blocked_connection_timeout=None
         )
@@ -143,85 +160,6 @@ class RabbitMQOutputHandler(BaseOutputHandler):
                 logger.info("RabbitMQ connection closed")
         except Exception as e:
             logger.warning("Error closing RabbitMQ connection: %s", e, exc_info=True)
-
-
-class KafkaOutputHandler(BaseOutputHandler):
-    """
-    Output handler for Kafka.
-    Manages connections, publishing, and closing for Kafka.
-    """
-
-    def connect(self):
-        """
-        Establish a connection to Kafka and create a producer.
-        Returns the producer if already connected.
-
-        Returns:
-            KafkaProducer: The Kafka producer.
-
-        Raises:
-            kafka_errors.KafkaError: If the connection to Kafka fails.
-        """
-        logger.debug("Attempting to connect to Kafka")
-        if self.producer is not None:
-            logger.debug("Kafka producer already connected")
-            return self.producer
-        try:
-            self.producer = KafkaProducer(
-                bootstrap_servers=self.cfg.brokers,
-                linger_ms=5,  # Ensure maximum throughput
-                retries=5,
-                acks='all'
-            )
-            logger.info("Successfully connected to Kafka")
-        except kafka_errors.KafkaError as e:
-            logger.error("Kafka connection error: %s", e)
-            raise
-        except Exception as e:
-            logger.exception("Unexpected error while connecting to Kafka: %s", e)
-            raise
-        return self.producer
-
-    def publish(self, body: bytes):
-        """
-        Publish a message to Kafka.
-
-        Args:
-            body (bytes): The message body to be published.
-        Raises:
-            kafka_errors.KafkaError: If publishing the message fails.
-        """
-        logger.debug("Publishing message to Kafka")
-        try:
-            producer = self.connect()
-            future = producer.send(
-                topic=self.cfg.topic,
-                value=body,
-                key=None
-            )
-            future.get(timeout=10)  # Block until sent or error
-            logger.info("Message published to Kafka successfully")
-        except kafka_errors.KafkaError as e:
-            logger.error("Kafka publishing error: %s", e)
-            raise
-        except Exception as e:
-            logger.exception("Unexpected error while publishing to Kafka: %s", e)
-            raise
-
-    def close(self):
-        """
-        Close the Kafka producer cleanly.
-        Flushes any pending messages before closing.
-        Logs any errors encountered during closure.
-        """
-        logger.debug("Closing Kafka producer")
-        if self.producer:
-            try:
-                self.producer.flush(timeout=10)
-                self.producer.close()
-                logger.info("Kafka producer closed successfully")
-            except Exception as e:
-                logger.warning("Error closing Kafka producer: %s", e, exc_info=True)
 
 
 _output_handlers_map: Dict[Type, Type[BaseOutputHandler]] = {

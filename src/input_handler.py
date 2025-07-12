@@ -148,7 +148,7 @@ class RabbitMQInputHandler(BaseInputHandler):
         Raises:
             AMQPConnectionError: If the connection to RabbitMQ fails.
         """
-        credentials = None
+        credentials = pika.PlainCredentials('guest', 'guest')
         if self.cfg.user and self.cfg.password:
             credentials = pika.PlainCredentials(self.cfg.user, self.cfg.password)
 
@@ -166,6 +166,11 @@ class RabbitMQInputHandler(BaseInputHandler):
         try:
             self.conn = pika.BlockingConnection(params)
             self.ch = self.conn.channel()
+            self.ch.queue_declare(
+                queue=self.cfg.queue,
+                durable=True,
+            )
+
             if self.cfg.prefetch_count:
                 self.ch.basic_qos(prefetch_count=self.cfg.prefetch_count)
             logger.info("Successfully connected to RabbitMQ")

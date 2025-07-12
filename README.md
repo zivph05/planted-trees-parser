@@ -100,6 +100,7 @@ logging:                      # OPTIONAL – defaults shown
 
 ---
 
+
 Below is an **add-on block** you can paste right after section **1.1 – Key-by-key
 explanation**.
 It explains how to represent **nested objects** with the existing flat-line
@@ -142,7 +143,6 @@ fields:
 ```
 
 ---
-
 ## 2 - Running locally
 
 ```bash

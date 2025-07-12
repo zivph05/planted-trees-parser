@@ -89,6 +89,7 @@ class RabbitMQOutputHandler(BaseOutputHandler):
         """
         logger.debug("Attempting to connect to RabbitMQ")
         credentials = PlainCredentials('guest', 'guest')
+
         if self.cfg.user and self.cfg.password:
             credentials = PlainCredentials(
                 username=self.cfg.user,

@@ -149,6 +149,7 @@ class RabbitMQInputHandler(BaseInputHandler):
             AMQPConnectionError: If the connection to RabbitMQ fails.
         """
         credentials = pika.PlainCredentials('guest', 'guest')
+
         if self.cfg.user and self.cfg.password:
             credentials = pika.PlainCredentials(self.cfg.user, self.cfg.password)
 

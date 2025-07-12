@@ -54,12 +54,9 @@ class JSONParser:
                 logger.debug("Parsed message: %s", json_data)
                 self.output_handler.publish(json_data)
                 MESSAGES_OUT.inc()
-            except ValueError as e:
+            except Exception as e:
                 logger.error(
-                    f"Failed to parse message: {e}, sending to error output"
-                )
-                json_data = json.dumps(
-                    {"raw_message": raw, "error": str(e)}, indent=4
+                    f"Failed to parse message: {e}"
                 )
                 MESSAGES_ERROR.inc()
 

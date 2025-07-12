@@ -7,11 +7,14 @@ from pydantic import BaseModel, Field, validator
 
 logger = logging.getLogger(__name__)
 
-# where to find your YAML
 CONFIG_PATH = os.getenv("CONFIG_PATH", "config/parser-config.yaml")
 
 
 class KafkaInput(BaseModel):
+    """
+    Configuration for Kafka input settings.
+    This class defines the Kafka brokers, topic, consumer group id, and offset reset policy.
+    """
     type: Literal["kafka"]
     brokers: List[str] = Field(..., description="List of Kafka bootstrap servers")
     topic: str = Field(..., description="Kafka topic to consume from")
@@ -29,6 +32,10 @@ class KafkaInput(BaseModel):
 
 
 class RabbitMQInput(BaseModel):
+    """
+    Configuration for RabbitMQ input settings.
+    This class defines the RabbitMQ host, port, queue name, and optional prefetch count.
+    """
     type: Literal["rabbitmq"]
     host: str = Field(..., description="RabbitMQ host to connect to")
     port: int = Field(..., description="RabbitMQ port to connect to")
@@ -46,6 +53,10 @@ InputConfig = Union[KafkaInput, RabbitMQInput]
 
 
 class ParserSettings(BaseModel):
+    """
+    Configuration for the parser settings.
+    This class defines how the input data should be parsed and serialized.
+    """
     parse_to: Literal["json"] = Field(..., description="Output serialization format")
     delimiter: str = Field(
         "|", min_length=1, description="Character to split incoming lines on"
@@ -57,6 +68,10 @@ class ParserSettings(BaseModel):
 
 
 class FieldSpec(BaseModel):
+    """
+    Specification for a field in the output JSON.
+    This class defines the name, type, and optional format for each field.
+    """
     name: str = Field(..., description="Field name in output JSON")
     type: Literal["str", "datetime", "int", "float", "bool"] = Field(
         ..., description="Data type for casting"
@@ -83,6 +98,10 @@ class FieldSpec(BaseModel):
 
 
 class RabbitMQOutput(BaseModel):
+    """
+    Configuration for RabbitMQ output settings.
+    This class defines the RabbitMQ host, port, exchange, and routing key for publishing messages.
+    """
     type: Literal["rabbitmq"]
     host: str = Field(..., description="RabbitMQ host to publish to")
     port: int = Field(..., description="RabbitMQ port to publish to")
@@ -98,6 +117,10 @@ OutputConfig = RabbitMQOutput
 
 
 class LoggingConfig(BaseModel):
+    """
+    Configuration for logging settings.
+    This class defines the logging level for the application.
+    """
     level: Literal["DEBUG", "INFO", "WARN", "ERROR"] = Field(
         "INFO", description="Logging level"
     )
@@ -108,6 +131,11 @@ class LoggingConfig(BaseModel):
 
 
 class ParserConfig(BaseModel):
+    """
+    Configuration for the parser application.
+    This class encapsulates all necessary settings for input, parsing, output,
+    and logging.
+    """
     input: InputConfig
     parser: ParserSettings
     fields: List[FieldSpec]
@@ -119,6 +147,11 @@ class ParserConfig(BaseModel):
         """
         Load and validate the parser configuration from YAML.
         Raises a clear exception if the file is missing or invalid.
+        Returns:
+            ParserConfig: The validated configuration object.
+        Raises:
+            FileNotFoundError: If the configuration file does not exist.
+            ValueError: If the configuration is invalid.
         """
         logger.info(f"Loading configuration from {CONFIG_PATH}")
         try:
@@ -140,6 +173,11 @@ class ParserConfig(BaseModel):
 
 
 def get_config() -> ParserConfig:
+    """
+    Retrieve the parser configuration, loading it from the specified YAML file.
+    Returns:
+        ParserConfig: The validated configuration object.
+    """
     logger.info("Retrieving parser configuration")
     config = ParserConfig.load()
     logger.debug(f"Parsed configuration object: {config}")

@@ -1,6 +1,5 @@
 from prometheus_client import Counter, Summary, start_http_server
 
-# Counters for message processing
 MESSAGES_IN = Counter(
     'messages_in_total', 'Total number of messages received by the parser'
 )
@@ -11,7 +10,6 @@ MESSAGES_ERROR = Counter(
     'messages_error_total', 'Total number of messages that resulted in an error'
 )
 
-# Summary to track parsing duration of each message
 PARSE_DURATION = Summary(
     'message_parse_duration_seconds', 'Time spent parsing individual messages'
 )

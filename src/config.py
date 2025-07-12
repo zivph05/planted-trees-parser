@@ -120,6 +120,8 @@ class RabbitMQOutput(BaseModel):
     port: int = Field(..., description="RabbitMQ port to publish to")
     exchange: str = Field(..., description="Exchange to publish to")
     routing_key: str = Field(..., description="Routing key for normal records")
+    user: Optional[str] = Field(None, description="Username for RabbitMQ authentication")
+    password: Optional[str] = Field(None, description="Password for RabbitMQ authentication")
 
     def __init__(self, **data):
         logger.debug(f"Initializing RabbitMQOutput with data: {data}")

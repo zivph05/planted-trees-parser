@@ -19,6 +19,7 @@ from src.metrics import (
     MESSAGES_ERROR,
     PARSE_DURATION,
 )
+from src.utils.densify import densify
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +50,9 @@ class JSONParser:
         MESSAGES_IN.inc()
         with PARSE_DURATION.time():
             try:
-                record = parse_line(raw, self.cfg.parser, self.cfg.fields)
-                json_data = json.dumps(record, indent=4, sort_keys=True, default=str)
+                record_flat = parse_line(raw, self.cfg.parser, self.cfg.fields)
+                record_nested = densify(record_flat)
+                json_data = json.dumps(record_nested, indent=4, sort_keys=True, default=str)
                 logger.debug("Parsed message: %s", json_data)
                 self.output_handler.publish(json_data)
                 MESSAGES_OUT.inc()

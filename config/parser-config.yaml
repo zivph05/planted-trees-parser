@@ -10,7 +10,7 @@ parser:
 
 fields:
   - name: message
-    type: string
+    type: str
 
   - name: arad_age
     type: int
@@ -20,10 +20,16 @@ fields:
     format: "%Y-%m-%dT%H:%M:%S.%fNZ"
 
   - name: reporter_name
-    type: string
+    type: str
 
   - name: address
-    type: string
+    type: str
+
+  - name: phone.phone_number
+    type: str
+
+  - name: phone.phone_type
+    type: str
 
 output:
   type: rabbitmq

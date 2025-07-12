@@ -88,7 +88,8 @@ class RabbitMQOutputHandler(BaseOutputHandler):
             AMQPConnectionError: If the connection to RabbitMQ fails.
         """
         logger.debug("Attempting to connect to RabbitMQ")
-        credentials = None
+        credentials = PlainCredentials('guest', 'guest')
+
         if self.cfg.user and self.cfg.password:
             credentials = PlainCredentials(
                 username=self.cfg.user,

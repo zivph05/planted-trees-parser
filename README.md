@@ -1,6 +1,6 @@
-# Planted-Trees Parser
+# Planted Trees Parser
 
-A lightweight service that
+A lightweight service that:
 
 1. **consumes** delimited text lines from **Kafka or RabbitMQ**  
 2. **parses** each line into a typed JSON object according to a column schema  
@@ -20,7 +20,7 @@ If `CONFIG_PATH` is unset the parser loads `config/parser-config.yaml`.
 
 ---
 
-## 1 Configuration file reference
+## 1 - Configuration file reference
 
 Below is a *minimal* but exhaustive skeleton that lists every accepted key.
 Delete the parts you don’t need and fill in real values.
@@ -100,6 +100,49 @@ logging:                      # OPTIONAL – defaults shown
 
 ---
 
+
+Below is an **add-on block** you can paste right after section **1.1 – Key-by-key
+explanation**.
+It explains how to represent **nested objects** with the existing flat-line
+parser design and (optionally) how to “densify” them back into true JSON
+sub-objects.
+
+---
+
+### 1.2 – Nested objects (dot-path keys)
+
+The parser itself is intentionally simple: it splits one flat, delimited line
+into *columns*.
+If you need a nested JSON structure—e.g.
+
+```json
+{
+  "phone": {
+    "phone_number": "053-532-8989",
+    "phone_type":   "Galaxy S24+"
+  }
+}
+```
+
+encode each leaf as its **own column** and use *dot-notation* in the
+`fields:` list:
+
+```yaml
+fields:
+  - name: tree_id
+    type: int
+
+  - name: species
+    type: str
+
+  - name: phone.phone_number   # ← dot path
+    type: str
+
+  - name: phone.phone_type     # ← dot path
+    type: str
+```
+
+---
 ## 2 - Running locally
 
 ```bash

@@ -36,10 +36,8 @@ def setup_logging(level: str):
 
 
 def main():
-    # Load configuration
     cfg = get_config()
 
-    # Setup logging from config
     setup_logging(cfg.logging.level)
     logging.info("Starting PlantedTrees Parser")
 
@@ -56,7 +54,6 @@ def main():
         logging.exception("Fatal error in parser")
         sys.exit(1)
     finally:
-        input_handler = parser.input_handler
         output_handler = parser.output_handler
         output_handler.close()
 

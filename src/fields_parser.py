@@ -127,7 +127,10 @@ def parse_line(
     Returns:
         Dict[str, Any]: A dictionary mapping field names to their corresponding typed values.
     Raises:
-        ValueError: If the input line is invalid or does not match the expected format.
+        DecodeError: If the raw input cannot be decoded as UTF-8.
+        EmptyLineError: If the input line is empty or whitespace only.
+        FieldCountMismatch: If the number of fields does not match the expected count.
+        CastError: If a value cannot be cast to the specified type.
     """
     line = _to_str(raw)
     parts = _split_line(line, cfg.delimiter, len(fields))

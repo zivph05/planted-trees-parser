@@ -76,27 +76,27 @@ logging:                      # OPTIONAL – defaults shown
 
 ### 1.1 - Key-by-key explanation
 
-| YAML path                                       | Required       | Description                                                              |
-|-------------------------------------------------|----------------|--------------------------------------------------------------------------|
-| **`input.type`**                                | ✅              | `"kafka"` or `"rabbitmq"` – selects the block that must be present.      |
-| `input.brokers` (kafka)                         | ✅              | List of bootstrap servers `host:port`.                                   |
-| `input.topic` (kafka)                           | ✅              | Topic to consume.                                                        |
-| `input.group_id` (kafka)                        | ➖              | Offsets are stored under this consumer-group ID (random if omitted).     |
-| `input.auto_offset_reset` (kafka)               | ➖              | Start at `earliest` (default) or `latest` when no stored offset exists.  |
-| `input.commit_interval_ms` (kafka)              | ➖              | Milliseconds between auto-commit operations (default **5000**).          |
-| `input.user` / `input.password` (kafka)         | ➖              | Credentials if the cluster is secured.                                   |
-| `input.host`, `input.port`, `input.queue` (rmq) | ✅              | Where to connect and which queue to consume.                             |
-| `input.prefetch_count` (rmq)                    | ➖              | Un-acked message window; tune for throughput.                            |
-| **`parser.delimiter`**                          | ➖              | Character used to `split()` each incoming line (default ` \ `)           |
-| **`parser.parse_to`**                           | fixed          | Must be `json` (future formats may be added).                            |
-| **`fields[]`**                                  | ✅              | Ordered array describing every column.                                   |
-| `name`                                          | ✅              | Key in the output JSON. NOTE: located under fields                       |
-| `type`                                          | ✅              | `str`, `int`, `float`, `bool`, or `datetime`. NOTE: located under fields |
-| `format` (datetime only)                        | ✅              | `strftime` pattern used for parsing. NOTE: located under fields          |
-| **`output`**                                    | ✅              | Currently only a RabbitMQ destination.                                   |
-| `output.exchange`, `output.routing_key`         | ✅              | Where the parser publishes each JSON document.                           |
-| `output.user` / `output.password`               | ➖              | Credentials if the broker is secured.                                    |
-| **`logging.level`**                             | ➖              | Sets global log verbosity (`INFO` by default).                           |
+| YAML path                                       | Required   | Description                                                              |
+|-------------------------------------------------|------------|--------------------------------------------------------------------------|
+| **`input`**                                     | ✅          | Where the parser receives the messages                                   |
+| `input.type`                                    | ✅          | `"kafka"` or `"rabbitmq"` – selects the block that must be present.      |
+| `input.brokers` (kafka)                         | ✅          | List of bootstrap servers `host:port`.                                   |
+| `input.topic` (kafka)                           | ✅          | Topic to consume.                                                        |
+| `input.group_id` (kafka)                        | ➖          | Offsets are stored under this consumer-group ID (random if omitted).     |
+| `input.auto_offset_reset` (kafka)               | ➖          | Start at `earliest` (default) or `latest` when no stored offset exists.  |
+| `input.commit_interval_ms` (kafka)              | ➖          | Milliseconds between auto-commit operations (default **5000**).          |
+| `input.user` / `input.password` (kafka)         | ➖          | Credentials if the cluster is secured.                                   |
+| `input.host`, `input.port`, `input.queue` (rmq) | ✅          | Where to connect and which queue to consume.                             |
+| `parser.delimiter`                              | ➖          | Character used to `split()` each incoming line (default ` \ `)           |
+| `parser.parse_to`                               | fixed      | Must be `json` (future formats may be added).                            |
+| **`fields[]`**                                  | ✅          | Ordered array describing every column.                                   |
+| `name`                                          | ✅          | Key in the output JSON. NOTE: located under fields                       |
+| `type`                                          | ✅          | `str`, `int`, `float`, `bool`, or `datetime`. NOTE: located under fields |
+| `format` (datetime only)                        | ✅          | `strftime` pattern used for parsing. NOTE: located under fields          |
+| **`output`**                                    | ✅          | Currently only a RabbitMQ destination.                                   |
+| `output.exchange`, `output.routing_key`         | ✅          | Where the parser publishes each JSON document.                           |
+| `output.user` / `output.password`               | ➖          | Credentials if the broker is secured.                                    |
+| **`logging.level`**                             | ➖          | Sets global log verbosity (`INFO` by default).                           |
 
 ---
 

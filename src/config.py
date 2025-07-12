@@ -34,6 +34,8 @@ class KafkaInput(BaseModel):
     commit_interval_ms: int = Field(
         5000, ge=100, description="How often (ms) to commit offsets"
     )
+    user: Optional[str] = Field(None, description="Username for Kafka authentication")
+    password: Optional[str] = Field(None, description="Password for Kafka authentication")
 
     def __init__(self, **data):
         logger.debug(f"Initializing KafkaInput with data: {data}")
@@ -49,6 +51,8 @@ class RabbitMQInput(BaseModel):
     host: str = Field(..., description="RabbitMQ host to connect to")
     port: int = Field(..., description="RabbitMQ port to connect to")
     queue: str = Field(..., description="Queue name to consume from")
+    user: Optional[str] = Field(None, description="Username for RabbitMQ authentication")
+    password: Optional[str] = Field(None, description="Password for RabbitMQ authentication")
     prefetch_count: Optional[int] = Field(
         None, ge=1, description="Prefetch count for RabbitMQ consumer"
     )

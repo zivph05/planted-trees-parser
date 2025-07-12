@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-07-12
+Description:
+    This module defines the configuration for the parser application.
+    It includes settings for input sources (Kafka and RabbitMQ), parsing options,
+    output destinations (RabbitMQ), and logging.
+    From the YAML file. Using CONFIG_PATH environment variable to specify the path.
+"""
 import os
 from typing import List, Literal, Optional, Union
 

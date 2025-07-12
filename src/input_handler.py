@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Input handler classes for consuming messages from Kafka and RabbitMQ.
+
+Defines abstract and concrete handlers for connecting to and consuming messages from supported input systems.
+"""
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Union, Type, Optional, Callable

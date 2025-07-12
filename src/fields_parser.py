@@ -1,4 +1,3 @@
-# src/parse_fields.py
 """
 Author: Ziv P.H
 Date: 2025-07-12

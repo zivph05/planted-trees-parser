@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+Output handler classes for publishing messages to RabbitMQ and Kafka.
+
+Defines abstract and concrete handlers for connecting, publishing, and closing output systems.
+"""
+
 import logging
 from abc import ABC, abstractmethod
 from typing import Type, Dict, Union, Optional

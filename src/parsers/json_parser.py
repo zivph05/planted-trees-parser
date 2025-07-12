@@ -1,3 +1,12 @@
+"""
+Author: Ziv P.H
+Date: 2025-7-12
+Description:
+JSON parser for transforming raw messages into structured JSON and publishing them.
+
+Handles message parsing, error handling, and output publishing.
+"""
+
 import json
 import logging
 from src.config import ParserConfig
